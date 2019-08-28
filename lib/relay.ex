@@ -65,13 +65,13 @@ defmodule Relay do
 
   def handle_cast({:on, relay}, state) do
     IcpDas.on(state[:icp], relay)
-    relays = Map.get_and_update(state[:relays], relay, fn current -> {current, :on} end)
+    {_old, relays} = Map.get_and_update(state[:relays], relay, fn current -> {current, :on} end)
     {:noreply, Map.put(state, :relays, relays)}
   end
 
   def handle_cast({:off, relay}, state) do
     IcpDas.off(state[:icp], relay)
-    relays = Map.get_and_update(state[:relays], relay, fn current -> {current, :on} end)
+    {_old, relays} = Map.get_and_update(state[:relays], relay, fn current -> {current, :off} end)
     {:noreply, Map.put(state, :relays, relays)}
   end
 
