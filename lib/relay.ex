@@ -76,7 +76,7 @@ defmodule Relay do
   end
 
   defp extract_relays(chambers) do
-    chambers["chamber"] |> Enum.map(fn({_key, x})-> x end ) |> Enum.flat_map(fn(x) -> Enum.map(x, fn({_key,y}) -> {y, :off} end) end)
+    chambers["chamber"] |> Enum.map(fn({_key, x})-> x end ) |> Enum.flat_map(fn(x) -> Enum.map(x, fn({_key,y}) -> {y, :off} end) end) |> Map.new
   end
 
   defp load_relay_file() do
