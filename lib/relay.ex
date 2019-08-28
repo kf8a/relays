@@ -25,7 +25,7 @@ defmodule Relay do
     GenServer.cast(pid, {:off, relay_number})
   end
 
-  def relay_status(pid, relay) do
+  def status(pid, relay) do
     GenServer.call(pid, {:relay_state, relay})
   end
 
@@ -64,13 +64,13 @@ defmodule Relay do
   end
 
   def handle_cast({:on, relay}, state) do
-    IcpDas.on(state[:icp], relay)
+    IcpDas.on(state[:icp], Integer.to_string(relay))
     {_old, relays} = Map.get_and_update(state[:relays], relay, fn current -> {current, :on} end)
     {:noreply, Map.put(state, :relays, relays)}
   end
 
   def handle_cast({:off, relay}, state) do
-    IcpDas.off(state[:icp], relay)
+    IcpDas.off(state[:icp], Integer.to_string(relay))
     {_old, relays} = Map.get_and_update(state[:relays], relay, fn current -> {current, :off} end)
     {:noreply, Map.put(state, :relays, relays)}
   end
@@ -93,5 +93,4 @@ defmodule Relay do
   defp update_relay({relay, _state}) do
     IO.inspect relay
   end
-
 end
