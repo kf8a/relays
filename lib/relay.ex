@@ -17,8 +17,12 @@ defmodule Relay do
     GenServer.cast(pid, {:close, chamber})
   end
 
-  def state(pid, valve) do
-    GenServer.call(pid, {:status, valve})
+  def on(pid, relay_number) do
+    GenServer.cast(pid, {:on, relay_number})
+  end
+
+  def off(pid, relay_number) do
+    GenServer.cast(pid, {:off, relay_number})
   end
 
   def relay_status(pid, relay) do
@@ -59,32 +63,34 @@ defmodule Relay do
     {:noreply, state}
   end
 
-  def on({relay, _state}=_valve, icp) do
-    icp.set(relay, 1)
-    {relay, :on}
+  def handle_cast({:on, relay}, state) do
+    IcpDas.on(state[:icp], relay)
+    relays = Map.get_and_update(state[:relays], relay, fn current -> {current, :on} end)
+    {:noreply, Map.put(state, :relays, relays)}
   end
 
-  def off({relay, _state} = _valve, icp) do
-    icp.set(relay, 0)
-    {relay, :off}
+  def handle_cast({:off, relay}, state) do
+    IcpDas.off(state[:icp], relay)
+    relays = Map.get_and_update(state[:relays], relay, fn current -> {current, :on} end)
+    {:noreply, Map.put(state, :relays, relays)}
   end
 
-  def extract_relays(chambers) do
+  defp extract_relays(chambers) do
     chambers["chamber"] |> Enum.map(fn({_key, x})-> x end ) |> Enum.flat_map(fn(x) -> Enum.map(x, fn({_key,y}) -> {y, :off} end) end)
   end
 
-  def load_relay_file() do
+  defp load_relay_file() do
     {:ok, data} = File.read(Path.join(:code.priv_dir(:relay), "relay.toml"))
     {:ok, chamber} = Toml.decode(data)
     chamber
   end
 
-  def update_relays(relay_map) do
+  defp update_relays(relay_map) do
     relay_map
     |> Enum.each(fn(x) -> update_relay(x) end)
   end
 
-  def update_relay({relay, _state}) do
+  defp update_relay({relay, _state}) do
     IO.inspect relay
   end
 
