@@ -53,7 +53,7 @@ defmodule Relay do
   end
 
   def handle_call({:relay_state, relay}, _from, state) do
-    {:reply, IcpDas.state(state[:icp], relay), state}
+    {:reply, IcpDas.state(state[:icp], Integer.to_string(relay)), state}
   end
 
   def handle_cast({:close, chamber}, state) do
