@@ -42,7 +42,7 @@ defmodule Relay do
     #TODO set all relays to zero or query relays for current status
 
     new_state = state
-                |> Map.put(:chambers, chambers)
+                |> Map.put(:chambers, chambers["chamber"])
                 |> Map.put(:relays, relays)
 
     {:noreply, new_state}
