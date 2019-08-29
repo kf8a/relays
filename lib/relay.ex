@@ -57,8 +57,10 @@ defmodule Relay do
   end
 
   def handle_cast({:close, chamber}, state) do
-      chamber = Map.fetch(state[:chambers], chamber)
-      valve = on(chamber["lid"], state[:icp])
+    {:ok, the_chamber} = Map.fetch(state[:chambers], chamber)
+    IO.inspect chamber
+    IO.inspect the_chamber
+    GenServer.cast(self, {:on, the_chamber["lid"]})
     # TODO  update the data
     {:noreply, state}
   end
